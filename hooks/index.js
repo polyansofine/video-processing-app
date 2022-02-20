@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect, useRef } from "react";
 
 export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
@@ -10,3 +10,28 @@ export const AuthProvider = ({ children }) => {
   );
 };
 export const useAuth = () => useContext(AuthContext);
+
+export function useInterval(callback, delay, stopFlag) {
+  const savedCallback = useRef();
+  //Remember the latest callback
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    let id;
+    function tick() {
+      savedCallback.current();
+      if (stopFlag) {
+        clearInterval(id);
+      }
+    }
+    if (delay !== null) {
+      const id = setInterval(tick, delay);
+      return () => {
+        clearInterval(id);
+      };
+    }
+  });
+}
